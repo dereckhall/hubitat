@@ -1,13 +1,18 @@
 /**
- *  Minoston Smart Plug Meter v1.0.0(HUBITAT)
+ *  Minoston Smart Plug Meter v1.0.0(HUBITAT) - Modified with Report Throttling
  *
  *  Models: MP21ZP & MP22ZP
  *
  *  Author:
  *   winnie (sky-nie)
  *
+ *  Modified by: Dereck
+ *   - Added configurable power and amperage report thresholds to reduce event spam
+ *
  *  Changelog:
  *
+ *    1.1.2 (02/03/2026)
+ *      - Add configurable power and amperage report thresholds
  *    1.1.1 (07/08/2023)
  *      - Add new ConfigParams for the configs with number from 9 to 13,
  *        And the configParams are available for the devices with firmware version 1.20 and later
@@ -29,7 +34,7 @@
  */
 metadata {
 	definition (
-            name: "Minoston Smart Plug Meter(MP21ZP & MP22ZP)",
+            name: "Minoston Smart Plug Meter Throttled(MP21ZP & MP22ZP)",
             namespace: "sky-nie",
             author: "winnie",
             importUrl: "https://raw.githubusercontent.com/sky-nie/hubitat/main/minoston/minoston-smart-plug-meter.groovy"
@@ -86,6 +91,20 @@ metadata {
 		input "inactivePower", "decimal",
 			title: "Report inactive when power is less than or equal to:",
 			defaultValue: inactivePowerSetting,
+			required: false,
+			displayDuringSetup: true
+
+		input "powerReportThreshold", "number",
+			title: "Power Report Threshold (W):",
+			description: "Only report power changes greater than this value",
+			defaultValue: 10,
+			required: false,
+			displayDuringSetup: true
+
+		input "amperageReportThreshold", "decimal",
+			title: "Amperage Report Threshold (A):",
+			description: "Only report amperage changes greater than this value",
+			defaultValue: 0.5,
 			required: false,
 			displayDuringSetup: true
 
@@ -358,6 +377,16 @@ def zwaveEvent(hubitat.zwave.commands.meterv5.MeterReport cmd) {
 			meter = meterEnergy
 			break
 		case meterPower.scale:
+			// THROTTLE POWER REPORTS
+			def lastPower = getAttrVal("power") ?: 0
+			def powerDelta = Math.abs(val - lastPower)
+			def powerThreshold = settings?.powerReportThreshold ?: 10
+			if (powerDelta < powerThreshold) {
+				// Skip this report - change too small
+				logTrace "Skipping power report: ${val}W (delta: ${powerDelta}W < threshold: ${powerThreshold}W)"
+				return []
+			}
+			
 			def deviceActive = (device.currentValue("acceleration") == "active")
 			if (val > inactivePowerSetting &&  !deviceActive) {
 				sendEvent(name:"acceleration", value:"active", displayed:false)
@@ -370,6 +399,15 @@ def zwaveEvent(hubitat.zwave.commands.meterv5.MeterReport cmd) {
 			meter = meterVoltage
 			break
 		case meterAmperage.scale:
+			// THROTTLE AMPERAGE REPORTS
+			def lastAmperage = getAttrVal("amperage") ?: 0
+			def amperageDelta = Math.abs(val - lastAmperage)
+			def amperageThreshold = settings?.amperageReportThreshold ?: 0.5
+			if (amperageDelta < amperageThreshold) {
+				// Skip this report - change too small
+				logTrace "Skipping amperage report: ${val}A (delta: ${amperageDelta}A < threshold: ${amperageThreshold}A)"
+				return []
+			}
 			meter = meterAmperage
 			break
 		default:
@@ -481,7 +519,7 @@ private getPowerFailureRecoveryParam() {
 }
 
 private getPowerValueChangeParam() {
-	return getParam(5, "Power Wattage(W) Report Value Change (1 [DEFAULT]; 0 - 5:0W - 5w)", 1, 1, null, "0..5")
+	return getParam(5, "Power Wattage(W) Report Value Change (1 [DEFAULT]; 0 - 100:0W - 100w)", 1, 1, null, "0..100")
 }
 
 private getPowerReportIntervalParam() {
