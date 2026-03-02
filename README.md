@@ -1,20 +1,49 @@
-<a name="ReadMeAnchor"></a>
-<h1>Welcome to sky-nie's Hubitat Repository</h1>
-<br>
-<hr />
-<br>
-<strong>I'm posting this code on GitHub so that anyone can use it, but this is a private repository so pull requests will be ignored.  If you find a problem or want something added, please post a message on the corresponding topic in the hubitat forum.</strong>
-<br>
-<br>
-hpm repository-create repository.json --author="winnie" --githuburl=https://github.com/sky-nie
-<br>
-<br>
-hpm repository-add-package repository.json --manifest=https://raw.githubusercontent.com/sky-nie/hubitat/main/evalogik/packageManifest.json --name="Package Evalogik" --category=Integrations --description="Package for Evalogik"
-<br>
-<br>
-hpm repository-add-package repository.json --manifest=https://raw.githubusercontent.com/sky-nie/hubitat/main/minoston/packageManifest.json --name="Package Minoston" --category=Integrations --description="Package for Minoston"
-<br>
-<br>
-hpm repository-add-package repository.json --manifest=https://raw.githubusercontent.com/sky-nie/hubitat/main/newone/packageManifest.json --name="Package NewOne" --category=Integrations --description="Package for NewOne"
-<br>
-<hr />
+# Hubitat Device Drivers
+
+Fork of [sky-nie/hubitat](https://github.com/sky-nie/hubitat) with additional fixes and improvements.
+
+## Changes from upstream
+
+- Configurable power and amperage report thresholds for the Minoston Smart Plug Meter to reduce event spam
+
+## Included Drivers
+
+### [Evalogik](evalogik/)
+- Mini Outdoor Smart Plug
+- Outdoor Smart Plug
+- Smart Dimmer Switch
+- Smart On/Off Switch
+- Smart On/Off Toggle Switch
+- Smart Plug
+- Smart Switch
+- Smart Toggle Dimmer Switch
+
+### [Minoston](minoston/)
+- 3-in-1 Sensor
+- Mini Outdoor Smart Plug
+- Mini Smart Plug
+- Outdoor Dimmer
+- Power Meter Plug
+- Smart Dimmer Switch
+- Smart On/Off Toggle Switch
+- Smart Plug Dimmer
+- Smart Plug Meter
+- Smart Switch
+- Smart Toggle Dimmer Switch
+- Wallmote
+
+### [NewOne](newone/)
+- Mini Smart Plug
+- Power Meter Plug
+- Smart Plug Dimmer
+
+### [Jasco](jasco/)
+- Indoor Single Outlet Plug-In
+
+## Installation
+
+Drivers can be installed manually by importing the raw Groovy file URL into Hubitat's **Drivers Code** section, or via [Hubitat Package Manager](https://community.hubitat.com/t/hubitat-package-manager/94471) using the upstream repository.
+
+## License
+
+See [LICENSE](LICENSE) for details.
